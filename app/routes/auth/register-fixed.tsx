@@ -10,17 +10,14 @@ import {
   HStack,
   Field,
   IconButton,
+  InputGroup,
   SimpleGrid,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { RiEyeLine, RiEyeOffLine } from "react-icons/ri";
-import { Link as RouterLink, useNavigate } from "react-router";
-import { useAuth } from "../../context/AuthContext";
-import type { RegisterData } from "../../types/auth";
+import { Link as RouterLink } from "react-router";
 
 export default function Register() {
-  const navigate = useNavigate();
-  const { register } = useAuth();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -122,20 +119,20 @@ export default function Register() {
     setIsLoading(true);
 
     try {
-      // Crear objeto de datos para el registro
-      const registerData: RegisterData = {
+      // TODO: Aquí irá la lógica de registro con el backend
+      console.log("Datos de registro:", {
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
         password: formData.password,
-      };
-
-      // Llamar a la función register del contexto
-      await register(registerData);
+      });
+      
+      // Simulación de petición (remover cuando se implemente la lógica real)
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
       showNotification(
         "¡Cuenta creada exitosamente!",
-        `Bienvenido/a ${formData.firstName}! Serás redirigido/a al inicio.`,
+        "Ya puedes iniciar sesión con tu nueva cuenta",
         'success'
       );
 
@@ -148,24 +145,10 @@ export default function Register() {
         confirmPassword: "",
       });
 
-      // Redirigir al usuario al home inmediatamente (el registro también hace login)
-      navigate("/", { replace: true });
-
-    } catch (error: any) {
-      console.error('Error en registro:', error);
-      
-      let errorMessage = "Intenta nuevamente o verifica que el email no esté en uso";
-      
-      // Extraer mensaje de error específico si está disponible
-      if (error?.message) {
-        errorMessage = error.message;
-      } else if (error?.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      }
-      
+    } catch (error) {
       showNotification(
         "Error al crear la cuenta",
-        errorMessage,
+        "Intenta nuevamente o verifica que el email no esté en uso",
         'error'
       );
     } finally {
@@ -244,7 +227,18 @@ export default function Register() {
                 {/* Password */}
                 <Field.Root invalid={!!errors.password}>
                   <Field.Label htmlFor="password">Contraseña</Field.Label>
-                  <Box position="relative">
+                  <InputGroup
+                    endElement={
+                      <IconButton
+                        aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                        onClick={() => setShowPassword(!showPassword)}
+                        variant="ghost"
+                        size="sm"
+                      >
+                        {showPassword ? <RiEyeOffLine /> : <RiEyeLine />}
+                      </IconButton>
+                    }
+                  >
                     <Input
                       id="password"
                       name="password"
@@ -252,28 +246,26 @@ export default function Register() {
                       placeholder="Mínimo 6 caracteres"
                       value={formData.password}
                       onChange={handleChange}
-                      pr="3rem"
                     />
-                    <IconButton
-                      aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-                      onClick={() => setShowPassword(!showPassword)}
-                      variant="ghost"
-                      size="sm"
-                      position="absolute"
-                      right="0.5rem"
-                      top="50%"
-                      transform="translateY(-50%)"
-                    >
-                      {showPassword ? <RiEyeOffLine /> : <RiEyeLine />}
-                    </IconButton>
-                  </Box>
+                  </InputGroup>
                   {errors.password && <Field.ErrorText>{errors.password}</Field.ErrorText>}
                 </Field.Root>
 
                 {/* Confirm Password */}
                 <Field.Root invalid={!!errors.confirmPassword}>
                   <Field.Label htmlFor="confirmPassword">Confirmar Contraseña</Field.Label>
-                  <Box position="relative">
+                  <InputGroup
+                    endElement={
+                      <IconButton
+                        aria-label={showConfirmPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        variant="ghost"
+                        size="sm"
+                      >
+                        {showConfirmPassword ? <RiEyeOffLine /> : <RiEyeLine />}
+                      </IconButton>
+                    }
+                  >
                     <Input
                       id="confirmPassword"
                       name="confirmPassword"
@@ -281,21 +273,8 @@ export default function Register() {
                       placeholder="Repite tu contraseña"
                       value={formData.confirmPassword}
                       onChange={handleChange}
-                      pr="3rem"
                     />
-                    <IconButton
-                      aria-label={showConfirmPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      variant="ghost"
-                      size="sm"
-                      position="absolute"
-                      right="0.5rem"
-                      top="50%"
-                      transform="translateY(-50%)"
-                    >
-                      {showConfirmPassword ? <RiEyeOffLine /> : <RiEyeLine />}
-                    </IconButton>
-                  </Box>
+                  </InputGroup>
                   {errors.confirmPassword && <Field.ErrorText>{errors.confirmPassword}</Field.ErrorText>}
                 </Field.Root>
 
@@ -306,8 +285,9 @@ export default function Register() {
                   size="lg"
                   w="full"
                   loading={isLoading}
+                  loadingText="Creando cuenta..."
                 >
-                  {isLoading ? "Creando cuenta..." : "Crear Cuenta"}
+                  Crear Cuenta
                 </Button>
               </VStack>
             </form>
